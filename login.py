@@ -2,10 +2,40 @@ from Tkinter import *
 from configuration import read_db_config
 from mysql.connector import MySQLConnection,Error
 
+WinStat =''
+db = read_db_config()
+conn = MySQLConnection(**db)
+cursor = conn.cursor()
+
+
+def stock():
+    application.destroy()
+    conn.close()
+    import stockdetails
+    a = stockdetails.stock()
+    open_win()
+
+
+def delstock():
+    application.destroy()
+    # login=sqlite.connect("grocery.sqlite")
+    # l=login.cursor()
+    conn.close()
+
+    import stockdetails
+    a = stockdetails.deletestock()
+
+    open_win()
+
+
+
+
 
 
 def again():  # for login window-----------------------------------------------------------------------------LOGIN WINDOW
-    global ent1,ent2, flag, root, apt, lblres, var1, var2
+    global ent1,ent2, flag,conn, root, apt, lblres, var1, var2
+    if WinStat=='application':
+        application.destroy()
     root = Tk()
     root.title('INDIAN GROCERY STORE')
     Label(root, text='INDIAN GROCERY STORE').grid(row=0, column=0, columnspan=5)
@@ -95,11 +125,41 @@ def dblog():
             lblres.configure(text="login failed")
         else:
             lblres.configure(text="login successfull")
+            open_win()
     except Error as e:
         print(e)
     finally:
         cursor.close()
         conn.close()
+
+
+def open_win():  # OPENS MAIN MENU----------------------------------------------------------------------------MAIN MENU
+    global application, WinStat,ent1
+    WinStat = 'application'
+    application = Tk()
+    application.title("INDIAN GROCERY STORE")
+    Label(application, text="INDIAN GROCERY STORE").grid(row=0, column=0, columnspan=3)
+    Label(application, text='*' * 80).grid(row=1, column=0, columnspan=3)
+    Label(application, text='-' * 80).grid(row=3, column=0, columnspan=3)
+
+    Label(application, text="Stock Maintenance").grid(row=2, column=0)
+    Button(application, text='Add product to Stock', width=25, command=stock).grid(row=5, column=0)
+    Button(application, text='Delete product from Stock', width=25,command = delstock).grid(row=6, column=0)
+
+    Label(application, text="Access Database").grid(row=2, column=1)
+    Button(application, text='Modify', width=15).grid(row=4, column=1)
+    Button(application, text='Search', width=15).grid(row=5, column=1)
+    Button(application, text='Expiry Check', width=15).grid(row=6, column=1)
+
+    Label(application, text="Handle Cash Flows").grid(row=2, column=2)
+    Button(application, text="Check Today's Revenue", width=20).grid(row=5, column=2)
+    Button(application, text='Billing', width=20).grid(row=4, column=2)
+
+    Label(application, text='-' * 80).grid(row=12, column=0, columnspan=3)
+    Button(application, text='Logout', command=again).grid(row=13, column=2)
+    application.mainloop()
+
+
 
 
 again()
